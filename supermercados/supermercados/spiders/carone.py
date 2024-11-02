@@ -34,21 +34,30 @@ class CaroneSpider(scrapy.Spider):
             # Capturando o HTML do produto como texto
             product_html = product.get()
 
-            # Usando regex para encontrar preços nos comentários
-            old_price_match = re.search(r'<!--\s*<span class="old-price">\s*(R\$ [\d,\.]+)\s*</span>', product_html)
-            best_price_match = re.search(r'<!--\s*<span class="best-price">\s*(R\$ [\d,\.]+)\s*</span>', product_html)
+            # Usando regex para encontrar preços
+            old_price_match = re.search(r'R\$[\s]*([\d,.]+)', product_html)
+            best_price_match = re.search(r'R\$[\s]*([\d,.]+)', product_html)
 
+            # Verificando se os preços estão presentes
             old_price = old_price_match.group(1) if old_price_match else None
             best_price = best_price_match.group(1) if best_price_match else None
 
+            # Log para depuração
+            self.log(f'Produto: {name}, Old Price: {old_price}, Best Price: {best_price}')
+
             # Determinando o preço a ser usado
-            price = best_price if best_price else old_price if old_price else 'Preço não disponível'
+            if best_price:
+                price = best_price  # Preço em promoção
+            elif old_price:
+                price = old_price  # Preço antigo
+            else:
+                price = 'Preço não disponível'
 
             yield {
-                'brand': brand,
-                'name': name,
-                'price': price,
-                'old_price': old_price,  # Incluindo o preço antigo se disponível
+                'Marca': brand,
+                'Nome': name,
+                'Preco': price,
+                'Preço_Antigo': old_price,  # Incluindo o preço antigo se disponível
             }
 
         # Paginando se houver mais produtos na categoria
