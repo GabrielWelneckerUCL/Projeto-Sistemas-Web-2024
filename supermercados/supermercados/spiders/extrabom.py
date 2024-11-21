@@ -34,11 +34,3 @@ class ExtrabomSpider(scrapy.Spider):
             if next_page:
                 # A URL da próxima página pode ser relativa, então usamos response.urljoin
                 yield response.follow(next_page, self.parse)
-
-        # Verifica se a página é de receitas
-        elif 'receitas' in response.url:
-            for receita in response.css('.receita-item'):
-                yield {
-                    'titulo': receita.css('.titulo::text').get(),
-                    'link': receita.css('a::attr(href)').get(),
-                }
